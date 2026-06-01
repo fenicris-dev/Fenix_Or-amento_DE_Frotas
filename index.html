@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Custo KM — Frota v2.0</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ── */
+:root {
+  --brand:#041273; --brand-l:#0a1f99; --brand-gl:#1a35c4;
+  --accent:#3a7bd5; --accent2:#00c9ff; --green:#00e5a0; --orange:#ff9f40; --red:#ff5f5f;
+}
+[data-theme="dark"]{
+  --bg:#080d1e;--bg2:#0d1530;--bg3:#111a3a;
+  --surf:#0f1933;--surf2:#162044;--surf3:#1c2a55;
+  --bord:#1e2f5a;--bord2:#2a3f7a;
+  --tx:#e8edf8;--tx2:#8a9bc8;--tx3:#4a5d8a;
+  --inp:#0a1228;--shad:rgba(0,0,0,.6);
+}
+[data-theme="light"]{
+  --bg:#f0f4fc;--bg2:#e4eaf8;--bg3:#d8e2f5;
+  --surf:#ffffff;--surf2:#eef2fb;--surf3:#e2eaf8;
+  --bord:#c5d0e8;--bord2:#a0b2d5;
+  --tx:#0d1835;--tx2:#3a4d7a;--tx3:#6a7da8;
+  --inp:#f8faff;--shad:rgba(4,18,115,.12);
+}
+[data-theme="sepia"]{
+  --bg:#1a1208;--bg2:#241808;--bg3:#2e200d;
+  --surf:#1e1508;--surf2:#2a1c0c;--surf3:#362410;
+  --bord:#4a3418;--bord2:#6a4a24;
+  --tx:#f0e0b8;--tx2:#c8a870;--tx3:#8a6a40;
+  --inp:#140e04;--shad:rgba(0,0,0,.7);
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+
+body{
+  font-family:'Barlow',sans-serif;
+  background:var(--bg);color:var(--tx);
+  min-height:100vh;transition:background .3s,color .3s;
+}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(circle at 15% 50%,rgba(4,18,115,.15) 0%,transparent 50%),
+    radial-gradient(circle at 85% 20%,rgba(26,53,196,.1) 0%,transparent 40%);
+}
+
+.wrap{position:relative;z-index:1;max-width:1140px;margin:0 auto;padding:20px 16px 80px}
+
+/* ── HEADER ── */
+header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:24px;padding-bottom:18px;border-bottom:1px solid var(--bord);
+  flex-wrap:wrap;gap:12px;
+}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-icon{
+  width:44px;height:44px;border-radius:10px;
+  background:linear-gradient(135deg,var(--brand),var(--brand-gl));
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+  box-shadow:0 4px 20px rgba(4,18,115,.5);flex-shrink:0;
+}
+.logo-text h1{
+  font-family:'Barlow Condensed',sans-serif;font-weight:800;
+  font-size:20px;letter-spacing:1px;text-transform:uppercase;
+}
+.logo-text p{font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:2px;margin-top:1px}
+.version-badge{
+  font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  background:linear-gradient(135deg,var(--accent2),var(--brand-gl));
+  color:#fff;padding:2px 7px;border-radius:20px;margin-left:8px;
+}
+
+.header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+
+.theme-bar{
+  display:flex;gap:4px;background:var(--surf);
+  border:1px solid var(--bord);border-radius:8px;padding:4px;
+}
+.tbtn{
+  border:none;background:transparent;color:var(--tx3);cursor:pointer;
+  padding:5px 11px;border-radius:5px;
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:11px;letter-spacing:1px;text-transform:uppercase;transition:all .2s;
+}
+.tbtn:hover{color:var(--tx)}
+.tbtn.active{background:var(--brand);color:#fff}
+
+.btn-print{
+  border:none;background:var(--surf);border:1px solid var(--bord);
+  color:var(--tx2);cursor:pointer;padding:7px 14px;border-radius:7px;
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:12px;letter-spacing:1px;text-transform:uppercase;transition:all .2s;
+  display:flex;align-items:center;gap:6px;
+}
+.btn-print:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ── MAIN GRID ── */
+.main-grid{display:grid;grid-template-columns:1fr 330px;gap:18px;align-items:start}
+@media(max-width:820px){.main-grid{grid-template-columns:1fr}}
+
+/* ── CARDS ── */
+.card{
+  background:var(--surf);border:1px solid var(--bord);
+  border-radius:14px;padding:22px;
+  box-shadow:0 4px 24px var(--shad);margin-bottom:16px;
+}
+.card:last-child{margin-bottom:0}
+
+.sec-title{
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:12px;letter-spacing:2px;text-transform:uppercase;
+  color:var(--accent);margin-bottom:16px;
+  display:flex;align-items:center;gap:8px;
+}
+.sec-title::before{
+  content:'';display:inline-block;width:3px;height:14px;border-radius:2px;
+  background:linear-gradient(180deg,var(--accent2),var(--brand-gl));
+}
+
+/* ── FORM ROWS ── */
+.frow{display:grid;gap:12px;margin-bottom:12px}
+.frow.c2{grid-template-columns:1fr 1fr}
+.frow.c3{grid-template-columns:1fr 1fr 1fr}
+.frow.c4{grid-template-columns:1fr 1fr 1fr 1fr}
+.frow.c5{grid-template-columns:2fr 1fr 1fr 1fr 1fr}
+@media(max-width:600px){
+  .frow.c2,.frow.c3,.frow.c4,.frow.c5{grid-template-columns:1fr 1fr}
+}
+
+.field{display:flex;flex-direction:column;gap:5px}
+label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1.2px;color:var(--tx3)}
+
+input,select{
+  background:var(--inp);border:1px solid var(--bord);border-radius:7px;
+  color:var(--tx);font-family:'Barlow',sans-serif;font-size:13px;
+  padding:8px 11px;outline:none;width:100%;
+  transition:border-color .2s,box-shadow .2s;
+}
+input:focus,select:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(58,123,213,.15);
+}
+input[readonly]{opacity:.6;cursor:default}
+select option{background:var(--inp)}
+
+/* ── STATS ROW ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+@media(max-width:600px){.stats-row{grid-template-columns:1fr 1fr}}
+
+.stat-box{
+  background:var(--surf2);border:1px solid var(--bord);
+  border-radius:9px;padding:12px 10px;text-align:center;
+}
+.stat-box .val{
+  font-family:'Barlow Condensed',sans-serif;font-weight:800;
+  font-size:17px;color:var(--accent2);
+}
+.stat-box .val.orange{color:var(--orange)}
+.stat-box .val.green{color:var(--green)}
+.stat-box .val.red{color:var(--red)}
+.stat-box .lbl{font-size:9px;color:var(--tx3);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+
+/* ── DEPRECIATION ── */
+.depr-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+@media(max-width:600px){.depr-grid{grid-template-columns:1fr 1fr}}
+
+.depr-result{
+  background:var(--surf2);border:1px solid var(--bord);border-radius:9px;
+  padding:12px;text-align:center;margin-top:12px;
+}
+.depr-result .val{
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px;color:var(--red);
+}
+.depr-result .lbl{font-size:9px;color:var(--tx3);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+.depr-bar-wrap{height:6px;background:var(--bord);border-radius:3px;margin-top:10px;overflow:hidden}
+.depr-bar{height:100%;background:linear-gradient(90deg,var(--green),var(--orange),var(--red));border-radius:3px;transition:width .6s}
+
+/* ── EXPENSE TABLE ── */
+.exp-table-wrap{overflow-x:auto}
+table.exp{width:100%;border-collapse:collapse;font-size:12px;min-width:560px}
+table.exp thead tr{background:var(--bg3)}
+table.exp th{
+  padding:9px 10px;text-align:left;
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:10px;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--tx3);border-bottom:1px solid var(--bord);white-space:nowrap;
+}
+table.exp td{padding:6px 6px;border-bottom:1px solid var(--bord);color:var(--tx2);vertical-align:middle}
+table.exp tr:last-child td{border-bottom:none}
+table.exp td input,table.exp td select{padding:6px 8px;font-size:12px}
+
+.cost-cell{
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:13px;color:var(--accent2) !important;white-space:nowrap;
+}
+.del-btn{
+  background:transparent;border:none;cursor:pointer;
+  color:var(--tx3);font-size:14px;padding:4px 6px;border-radius:4px;
+  transition:color .2s;
+}
+.del-btn:hover{color:var(--red)}
+
+.tag-auto{
+  display:inline-block;font-size:9px;font-weight:700;letter-spacing:1px;
+  background:rgba(0,201,255,.15);color:var(--accent2);
+  border:1px solid rgba(0,201,255,.3);padding:1px 5px;border-radius:3px;
+  text-transform:uppercase;margin-left:4px;vertical-align:middle;
+}
+
+.add-row-btn{
+  background:transparent;border:1px dashed var(--bord2);color:var(--tx3);
+  border-radius:7px;cursor:pointer;font-size:12px;padding:7px 14px;
+  width:100%;margin-top:8px;font-family:'Barlow',sans-serif;transition:all .2s;
+}
+.add-row-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ── RESULT BOX ── */
+.result-box{
+  background:linear-gradient(135deg,var(--brand),var(--brand-gl));
+  border-radius:13px;padding:22px;text-align:center;
+  margin-top:18px;position:relative;overflow:hidden;
+}
+.result-box::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 70% 30%,rgba(255,255,255,.08) 0%,transparent 60%);
+}
+.result-label{
+  font-family:'Barlow Condensed',sans-serif;font-size:10px;
+  letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.65);
+  margin-bottom:4px;position:relative;
+}
+.result-value{
+  font-family:'Barlow Condensed',sans-serif;font-weight:900;
+  font-size:48px;color:#fff;letter-spacing:-1px;position:relative;
+  text-shadow:0 2px 20px rgba(0,0,0,.3);line-height:1;
+}
+.result-value small{font-size:22px;font-weight:600;opacity:.8}
+.result-sub{font-size:11px;color:rgba(255,255,255,.55);margin-top:6px;position:relative}
+.result-breakdown{
+  display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px;position:relative;
+}
+.rb-item{background:rgba(255,255,255,.1);border-radius:8px;padding:10px 8px;text-align:center}
+.rb-item .rv{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;color:#fff}
+.rb-item .rl{font-size:9px;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+
+/* ── BUTTONS ── */
+.btn{
+  border:none;border-radius:8px;cursor:pointer;
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:13px;letter-spacing:1px;text-transform:uppercase;
+  padding:11px 18px;transition:all .2s;
+}
+.btn-primary{
+  background:linear-gradient(135deg,var(--brand),var(--brand-gl));
+  color:#fff;width:100%;margin-top:16px;
+  box-shadow:0 4px 16px rgba(4,18,115,.4);
+}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(4,18,115,.6)}
+.btn-primary:active{transform:translateY(0)}
+
+.btn-sm{padding:5px 10px;font-size:10px;border-radius:5px}
+.btn-danger{background:rgba(200,50,50,.2);color:var(--red);border:1px solid rgba(200,50,50,.3)}
+.btn-danger:hover{background:rgba(200,50,50,.35)}
+.btn-load{background:rgba(58,123,213,.15);color:var(--accent);border:1px solid rgba(58,123,213,.3);width:100%;margin-top:6px}
+.btn-load:hover{background:rgba(58,123,213,.25)}
+
+.badge{
+  display:inline-block;background:var(--brand);color:#fff;
+  font-size:9px;font-weight:700;letter-spacing:1px;
+  padding:2px 6px;border-radius:20px;text-transform:uppercase;margin-left:6px;
+}
+
+/* ── HISTORY ── */
+.history-list{display:flex;flex-direction:column;gap:9px;max-height:600px;overflow-y:auto;padding-right:3px}
+.history-list::-webkit-scrollbar{width:3px}
+.history-list::-webkit-scrollbar-thumb{background:var(--bord2);border-radius:2px}
+
+.hi{
+  background:var(--surf2);border:1px solid var(--bord);
+  border-radius:10px;padding:12px 13px;transition:border-color .2s,box-shadow .2s;
+}
+.hi:hover{border-color:var(--accent);box-shadow:0 2px 12px rgba(4,18,115,.3)}
+.hi-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
+.hi-plate{
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:12px;letter-spacing:2px;color:var(--tx);
+  background:var(--bg3);border:1px solid var(--bord2);
+  border-radius:4px;padding:2px 7px;
+}
+.hi-cost{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;color:var(--accent2)}
+.hi-model{font-size:12px;color:var(--tx2);font-weight:500}
+.hi-info{font-size:10px;color:var(--tx3);margin-top:2px}
+.hi-date{font-size:9px;color:var(--tx3);margin-top:6px;text-align:right}
+.hi-acts{display:flex;gap:6px;margin-top:7px}
+
+.empty-hist{
+  text-align:center;color:var(--tx3);font-size:12px;
+  padding:28px 14px;border:1px dashed var(--bord);border-radius:10px;
+}
+
+/* ── DIVIDER ── */
+.divider{height:1px;background:var(--bord);margin:18px 0}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:24px;right:24px;
+  background:var(--brand-gl);color:#fff;
+  padding:11px 18px;border-radius:8px;font-size:12px;font-weight:600;
+  box-shadow:0 4px 20px rgba(0,0,0,.3);
+  transform:translateY(80px);opacity:0;transition:all .3s;z-index:999;
+}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* ── AUDIT PANEL ── */
+.audit-card{
+  background:var(--surf);border:1px solid var(--bord);
+  border-radius:14px;padding:22px;
+  box-shadow:0 4px 24px var(--shad);margin-top:16px;
+}
+.audit-toggle{
+  display:flex;align-items:center;justify-content:space-between;cursor:pointer;
+  user-select:none;
+}
+.audit-toggle-icon{
+  font-size:11px;color:var(--tx3);font-family:'Barlow Condensed',sans-serif;
+  font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  background:var(--surf2);border:1px solid var(--bord);border-radius:5px;
+  padding:4px 10px;transition:all .2s;
+}
+.audit-toggle:hover .audit-toggle-icon{color:var(--accent);border-color:var(--accent)}
+#audit_body{display:none;margin-top:16px}
+#audit_body.open{display:block}
+
+.audit-intro{
+  font-size:12px;color:var(--tx2);background:var(--surf2);
+  border:1px solid var(--bord);border-radius:8px;
+  padding:10px 14px;margin-bottom:12px;line-height:1.6;
+}
+.audit-intro code{
+  background:var(--bg3);color:var(--accent2);
+  padding:1px 5px;border-radius:3px;font-size:11px;
+}
+.audit-intro strong{color:var(--tx)}
+
+.audit-table{width:100%;border-collapse:collapse;font-size:12px}
+.audit-table thead tr{background:var(--bg3)}
+.audit-table th{
+  padding:8px 10px;text-align:left;
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:10px;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--tx3);border-bottom:1px solid var(--bord);
+}
+.audit-table td{padding:9px 10px;border-bottom:1px solid var(--bord);vertical-align:top}
+.audit-table td strong{color:var(--tx);font-size:12px}
+
+.audit-formula{
+  font-family:'Barlow',monospace;font-size:11px;color:var(--tx2);
+  line-height:1.5;max-width:380px;
+}
+.audit-val{
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;
+  font-size:13px;color:var(--accent2);white-space:nowrap;text-align:right;
+}
+.audit-pct{
+  display:inline-block;font-size:9px;color:var(--tx3);
+  background:var(--surf2);border:1px solid var(--bord);
+  padding:1px 5px;border-radius:3px;margin-left:4px;font-weight:400;
+}
+.audit-tag{
+  display:inline-block;font-size:9px;font-weight:700;letter-spacing:1px;
+  text-transform:uppercase;padding:2px 7px;border-radius:3px;white-space:nowrap;
+}
+.audit-tag.fixo{background:rgba(0,201,255,.12);color:var(--accent2);border:1px solid rgba(0,201,255,.25)}
+.audit-tag.variavel{background:rgba(0,229,160,.12);color:var(--green);border:1px solid rgba(0,229,160,.25)}
+.audit-total-row td{
+  background:var(--surf2);font-size:11px;color:var(--tx2);
+  border-top:2px solid var(--bord2);padding:10px;font-style:italic;
+}
+.audit-result-row td{
+  background:var(--bg3);font-size:11px;color:var(--tx2);
+  padding:8px 10px;
+}
+.audit-result-row .audit-formula strong{color:var(--tx)}
+
+/* ── PRINT ── */
+@media print{
+  .no-print{display:none!important}
+  body{background:#fff!important;color:#000!important}
+  .card{border:1px solid #ccc!important;box-shadow:none!important;background:#fff!important;page-break-inside:avoid}
+  .result-box{background:#041273!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .main-grid{grid-template-columns:1fr!important}
+  header{border-bottom:2px solid #041273!important}
+  body::before{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">🚗</div>
+    <div class="logo-text">
+      <h1>Custo por KM Rodado <span class="version-badge">v2.0</span></h1>
+      <p>Controle de Frota Empresarial</p>
+    </div>
+  </div>
+  <div class="header-right no-print">
+    <button class="btn-print" onclick="window.print()">🖨️ Imprimir / PDF</button>
+    <div class="theme-bar">
+      <button class="tbtn" onclick="setTheme('light')">☀️ Claro</button>
+      <button class="tbtn active" onclick="setTheme('dark')">🌙 Escuro</button>
+      <button class="tbtn" onclick="setTheme('sepia')">📜 Sépia</button>
+    </div>
+  </div>
+</header>
+
+<div class="main-grid">
+<!-- ══ LEFT COLUMN ══ -->
+<div>
+
+  <!-- VEHICLE -->
+  <div class="card">
+    <div class="sec-title">Dados do Veículo</div>
+    <div class="frow c3">
+      <div class="field"><label>Marca</label><input id="marca" placeholder="Ex: Honda" oninput="calc()"></div>
+      <div class="field"><label>Modelo</label><input id="modelo" placeholder="Ex: CG Fan" oninput="calc()"></div>
+      <div class="field"><label>Placa</label><input id="placa" placeholder="ABC-1234" maxlength="8" oninput="this.value=this.value.toUpperCase();calc()"></div>
+    </div>
+    <div class="frow c4">
+      <div class="field"><label>Motorista Principal</label><input id="motorista" placeholder="Nome completo" oninput="calc()"></div>
+      <div class="field"><label>Ano</label><input id="ano" type="number" placeholder="2024" oninput="calc()"></div>
+      <div class="field">
+        <label>Tipo de Veículo</label>
+        <select id="tipo_veiculo" onchange="calc()">
+          <option value="moto">Moto</option>
+          <option value="carro" selected>Carro / SUV</option>
+          <option value="utilitario">Utilitário / Van</option>
+          <option value="caminhao">Caminhão</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Combustível</label>
+        <select id="combustivel" onchange="calc()">
+          <option value="gasolina">Gasolina</option>
+          <option value="etanol">Etanol</option>
+          <option value="flex">Flex</option>
+          <option value="diesel">Diesel</option>
+          <option value="gnv">GNV</option>
+          <option value="eletrico">Elétrico</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- DEPRECIATION -->
+  <div class="card">
+    <div class="sec-title">Valor do Bem & Depreciação</div>
+    <div class="depr-grid">
+      <div class="field"><label>Valor de Compra (R$)</label><input id="valor_compra" type="number" placeholder="0,00" min="0" oninput="calc()"></div>
+      <div class="field">
+        <label>Método de Depreciação</label>
+        <select id="metodo_depr" onchange="calc()">
+          <option value="linear">Linear (fixo/ano)</option>
+          <option value="percentual">Percentual (% sobre valor)</option>
+        </select>
+      </div>
+      <div class="field"><label>Taxa Anual (%)</label><input id="taxa_depr" type="number" placeholder="20" value="20" min="1" max="100" oninput="calc()"></div>
+    </div>
+    <div id="depr_result" class="depr-result" style="display:none">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+        <div><div class="val red" id="depr_ano_val">R$ 0</div><div class="lbl">Depreciação/ano</div></div>
+        <div><div class="val orange" id="depr_km_val">R$ 0,000</div><div class="lbl">Depreciação/km</div></div>
+        <div><div class="val green" id="valor_atual_val">R$ 0</div><div class="lbl">Valor Atual Est.</div></div>
+      </div>
+      <div class="depr-bar-wrap"><div class="depr-bar" id="depr_bar" style="width:100%"></div></div>
+      <div style="font-size:9px;color:var(--tx3);margin-top:4px;text-align:right" id="depr_pct_label"></div>
+    </div>
+  </div>
+
+  <!-- USAGE -->
+  <div class="card">
+    <div class="sec-title">Utilização</div>
+    <div class="frow c3">
+      <div class="field"><label>Média km/dia</label><input id="km_dia" type="number" placeholder="0" min="0" oninput="calc()"></div>
+      <div class="field"><label>Dias úteis/ano</label><input id="dias_ano" type="number" placeholder="240" value="240" oninput="calc()"></div>
+      <div class="field"><label>km rodados/ano</label><input id="km_ano" type="number" readonly></div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-box"><div class="val" id="s_km_dia">0 km</div><div class="lbl">km / dia</div></div>
+      <div class="stat-box"><div class="val" id="s_km_mes">0 km</div><div class="lbl">km / mês</div></div>
+      <div class="stat-box"><div class="val orange" id="s_custo_dia">R$ 0</div><div class="lbl">Custo / dia</div></div>
+      <div class="stat-box"><div class="val green" id="s_custo_mes">R$ 0</div><div class="lbl">Custo / mês</div></div>
+    </div>
+  </div>
+
+  <!-- EXPENSES -->
+  <div class="card">
+    <div class="sec-title">Gastos do Veículo <span class="badge" id="badge_itens">0</span></div>
+    <div class="exp-table-wrap">
+      <table class="exp">
+        <thead>
+          <tr>
+            <th style="width:22%">Descrição</th>
+            <th style="width:14%">Frequência</th>
+            <th style="width:14%">Valor (R$)</th>
+            <th style="width:20%">Referência <span style="font-size:8px;opacity:.6">(litros/km/qtd)</span></th>
+            <th style="width:14%">Custo/km</th>
+            <th style="width:10%">Auto <span class="tag-auto">BASE</span></th>
+            <th style="width:6%" class="no-print"></th>
+          </tr>
+        </thead>
+        <tbody id="exp_body"></tbody>
+      </table>
+    </div>
+    <button class="add-row-btn no-print" onclick="addRow()">+ Adicionar item</button>
+
+    <!-- RESULT -->
+    <div class="result-box">
+      <div class="result-label">Custo Total por KM Rodado</div>
+      <div class="result-value"><small>R$</small> <span id="r_total">0,000</span></div>
+      <div class="result-sub" id="r_sub">Informe os dados para calcular</div>
+      <div class="result-breakdown">
+        <div class="rb-item"><div class="rv" id="rb_fixo">R$ 0,000</div><div class="rl">Fixos/km</div></div>
+        <div class="rb-item"><div class="rv" id="rb_var">R$ 0,000</div><div class="rl">Variáveis/km</div></div>
+        <div class="rb-item"><div class="rv" id="rb_depr">R$ 0,000</div><div class="rl">Depreciação/km</div></div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary no-print" onclick="salvar()">💾 Salvar no Histórico</button>
+  </div>
+
+  <!-- AUDIT PANEL -->
+  <div class="audit-card no-print">
+    <div class="audit-toggle" onclick="toggleAudit()">
+      <div class="sec-title" style="margin-bottom:0">🔍 Como os números foram calculados</div>
+      <span class="audit-toggle-icon" id="audit_toggle_lbl">▶ Mostrar</span>
+    </div>
+    <div id="audit_body">
+      <div id="audit_panel"></div>
+    </div>
+  </div>
+
+</div><!-- /left -->
+
+<!-- ══ RIGHT COLUMN ══ -->
+<div class="no-print">
+  <div class="card" style="position:sticky;top:20px">
+    <div class="sec-title">Histórico <span class="badge" id="badge_hist">0</span></div>
+    <div class="history-list" id="hist_list">
+      <div class="empty-hist">Nenhum veículo salvo.<br>Preencha os dados e salve.</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main-grid -->
+</div><!-- /wrap -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ─── FREQUENCY HELPERS ─── */
+// Frequencies: dia | semana | mes | ano | km
+// For time-based: we auto-convert using km_dia & dias_ano
+// "auto" flag = calculated from usage base, no manual ref needed
+
+const FREQ_LABELS = {
+  dia:'Dia', semana:'Semana', mes:'Mês', ano:'Ano', km:'KM (intervalo)'
+};
+
+// Fixed = time-based (dia/semana/mes/ano), Variable = km-based
+function isFixed(unit){ return ['dia','semana','mes','ano'].includes(unit) }
+
+const DEFAULT_EXPENSES = [
+  { desc:'Combustível',          unit:'km',     value:7.10,  ref:20,    auto:true  },
+  { desc:'Revisão',              unit:'mes',    value:150,   ref:1,     auto:true  },
+  { desc:'Lavagem',              unit:'mes',    value:30,    ref:1,     auto:true  },
+  { desc:'Pneus',                unit:'km',     value:400,   ref:5000,  auto:false },
+  { desc:'Seguro',               unit:'ano',    value:2100,  ref:1,     auto:true  },
+  { desc:'IPVA e Licenciamento', unit:'ano',    value:2500,  ref:1,     auto:true  },
+  { desc:'Troca de Óleo',        unit:'km',     value:120,   ref:5000,  auto:false },
+  { desc:'CNH / Habilitação',    unit:'ano',    value:250,   ref:5,     auto:true  }, // valor/ano = custo total / validade(anos) como ref
+];
+
+let expenses = JSON.parse(JSON.stringify(DEFAULT_EXPENSES));
+let history  = JSON.parse(localStorage.getItem('frota_v2_hist') || '[]');
+
+/* ─── INIT ─── */
+function init(){
+  renderExpenses();
+  renderHistory();
+  calc();
+  const t = localStorage.getItem('frota_theme') || 'dark';
+  setTheme(t, true);
+}
+
+function setTheme(t, silent){
+  document.documentElement.setAttribute('data-theme', t);
+  document.querySelectorAll('.tbtn').forEach(b => b.classList.remove('active'));
+  ({light:0, dark:1, sepia:2})[t] !== undefined &&
+    document.querySelectorAll('.tbtn')[({light:0,dark:1,sepia:2})[t]].classList.add('active');
+  if(!silent) localStorage.setItem('frota_theme', t);
+}
+
+/* ─── RENDER EXPENSES ─── */
+function renderExpenses(){
+  const tbody = document.getElementById('exp_body');
+  tbody.innerHTML = '';
+  expenses.forEach((e, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="text" value="${e.desc}" onchange="expenses[${i}].desc=this.value;calc()"></td>
+      <td>
+        <select onchange="expenses[${i}].unit=this.value;renderExpenses();calc()">
+          ${Object.entries(FREQ_LABELS).map(([v,l])=>`<option value="${v}" ${e.unit===v?'selected':''}>${l}</option>`).join('')}
+        </select>
+      </td>
+      <td><input type="number" value="${e.value}" min="0" step="0.01" onchange="expenses[${i}].value=parseFloat(this.value)||0;calc()"></td>
+      <td>${refCell(e, i)}</td>
+      <td class="cost-cell" id="custo_${i}">R$ --</td>
+      <td>
+        <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:10px;color:var(--tx3)">
+          <input type="checkbox" ${e.auto?'checked':''} onchange="expenses[${i}].auto=this.checked;calc()" style="width:auto;padding:0">
+          Auto
+        </label>
+      </td>
+      <td class="no-print"><button class="del-btn" onclick="delRow(${i})" title="Remover">✕</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('badge_itens').textContent = expenses.length;
+  // restore refs
+  expenses.forEach((e,i) => {
+    const el = document.getElementById(`ref_${i}`);
+    if(el && e.ref !== undefined) el.value = e.ref;
+  });
+}
+
+function refCell(e, i){
+  if(e.unit === 'km'){
+    return `<input type="number" id="ref_${i}" value="${e.ref||''}" placeholder="km intervalo" min="0"
+      onchange="expenses[${i}].ref=parseFloat(this.value)||0;calc()">`;
+  }
+  if(e.auto){
+    // time-based auto: ref = multiplier (ex: CNH ref = validity years)
+    if(e.desc.toLowerCase().includes('cnh') || e.desc.toLowerCase().includes('habilitação')){
+      return `<input type="number" id="ref_${i}" value="${e.ref||5}" placeholder="validade (anos)" min="1" max="10"
+        title="Validade da CNH em anos"
+        onchange="expenses[${i}].ref=parseFloat(this.value)||1;calc()">`;
+    }
+    return `<span style="font-size:10px;color:var(--tx3)">— auto</span>`;
+  }
+  return `<input type="number" id="ref_${i}" value="${e.ref||''}" placeholder="qtd / período" min="0"
+    onchange="expenses[${i}].ref=parseFloat(this.value)||0;calc()">`;
+}
+
+function addRow(){
+  expenses.push({ desc:'Novo Gasto', unit:'mes', value:0, ref:1, auto:true });
+  renderExpenses(); calc();
+}
+function delRow(i){ expenses.splice(i,1); renderExpenses(); calc(); }
+
+/* ─── MAIN CALC ─── */
+function calc(){
+  const kmDia   = parseFloat(document.getElementById('km_dia').value)  || 0;
+  const diasAno = parseFloat(document.getElementById('dias_ano').value) || 240;
+  const kmAno   = kmDia * diasAno;          // ex: 20 × 240 = 4800 km/ano
+  const kmMes   = kmAno / 12;               // ex: 4800 / 12 = 400 km/mês
+  const diasMes = diasAno / 12;             // ex: 240 / 12 = 20 dias/mês úteis
+
+  document.getElementById('km_ano').value = kmAno > 0 ? kmAno.toFixed(0) : '';
+  document.getElementById('s_km_dia').textContent = fmtNum(kmDia, 0) + ' km';
+  document.getElementById('s_km_mes').textContent = fmtNum(kmMes, 0) + ' km';
+
+  // ── Depreciation ──
+  let deprKm = 0;
+  const vc = parseFloat(document.getElementById('valor_compra').value) || 0;
+  const taxa = parseFloat(document.getElementById('taxa_depr').value) || 20;
+  const metodo = document.getElementById('metodo_depr').value;
+  const anoVeiculo = parseInt(document.getElementById('ano').value) || new Date().getFullYear();
+  const idadeAnos  = Math.max(0, new Date().getFullYear() - anoVeiculo);
+
+  if(vc > 0){
+    document.getElementById('depr_result').style.display = 'block';
+    let deprAno, valorAtual;
+    if(metodo === 'linear'){
+      deprAno    = vc * (taxa / 100);
+      valorAtual = Math.max(0, vc - deprAno * idadeAnos);
+    } else {
+      deprAno    = vc * (taxa / 100);
+      valorAtual = vc * Math.pow(1 - taxa / 100, idadeAnos);
+    }
+    deprKm = kmAno > 0 ? deprAno / kmAno : 0;
+    const pctRestante = Math.max(0, Math.min(100, (valorAtual / vc) * 100));
+    document.getElementById('depr_ano_val').textContent     = 'R$ ' + fmtBR(deprAno, 2);
+    document.getElementById('depr_km_val').textContent      = 'R$ ' + fmtBR(deprKm, 3);
+    document.getElementById('valor_atual_val').textContent  = 'R$ ' + fmtBR(valorAtual, 2);
+    document.getElementById('depr_bar').style.width         = pctRestante + '%';
+    document.getElementById('depr_pct_label').textContent   =
+      `${pctRestante.toFixed(0)}% do valor restante (${idadeAnos} ano${idadeAnos!==1?'s':''} de uso)`;
+  } else {
+    document.getElementById('depr_result').style.display = 'none';
+  }
+
+  // ── Expenses ──
+  let totalKm = 0, totalFixed = 0, totalVar = 0;
+  const auditRows = []; // for transparency panel
+
+  expenses.forEach((e, i) => {
+    const el  = document.getElementById(`custo_${i}`);
+    const ref = parseFloat(document.getElementById(`ref_${i}`)?.value) || e.ref || 0;
+    e.ref = ref;
+
+    let custoKm = 0;
+    let auditFormula = '';
+    let auditValorAno = null;
+
+    if(e.unit === 'km'){
+      // ── KM-based (variable): R$/km = cost ÷ km_interval
+      // Example: Combustível R$7,10/litro ÷ 20 km/l = R$0,355/km
+      // Example: Pneu R$200 ÷ 5000 km = R$0,040/km
+      if(ref > 0){
+        custoKm = e.value / ref;
+        if(e.desc.toLowerCase().includes('combust')){
+          auditFormula = `R$ ${fmtBR(e.value,2)}/litro ÷ ${ref} km/litro = R$ ${fmtBR(custoKm,4)}/km`;
+        } else {
+          auditFormula = `R$ ${fmtBR(e.value,2)} ÷ ${fmtNum(ref,0)} km = R$ ${fmtBR(custoKm,4)}/km`;
+        }
+      } else {
+        auditFormula = 'Informe o intervalo em km';
+      }
+      totalVar += custoKm;
+
+    } else {
+      // ── Time-based (fixed): convert to annual cost, then ÷ km/ano
+      // Step 1 — normalize to R$/ano
+      let valorAno = 0;
+      let stepFormula = '';
+      if(e.unit === 'dia'){
+        valorAno = e.value * diasAno;
+        stepFormula = `R$ ${fmtBR(e.value,2)}/dia × ${diasAno} dias/ano = R$ ${fmtBR(valorAno,2)}/ano`;
+      } else if(e.unit === 'semana'){
+        valorAno = e.value * 52;
+        stepFormula = `R$ ${fmtBR(e.value,2)}/sem × 52 semanas = R$ ${fmtBR(valorAno,2)}/ano`;
+      } else if(e.unit === 'mes'){
+        valorAno = e.value * 12;
+        stepFormula = `R$ ${fmtBR(e.value,2)}/mês × 12 meses = R$ ${fmtBR(valorAno,2)}/ano`;
+      } else if(e.unit === 'ano'){
+        const isCNH = e.desc.toLowerCase().includes('cnh') || e.desc.toLowerCase().includes('habilitação');
+        if(isCNH && ref > 0){
+          valorAno = e.value / ref;
+          stepFormula = `R$ ${fmtBR(e.value,2)} (total) ÷ ${ref} anos de validade = R$ ${fmtBR(valorAno,2)}/ano`;
+        } else {
+          valorAno = e.value;
+          stepFormula = `R$ ${fmtBR(e.value,2)}/ano (direto)`;
+        }
+      }
+      auditValorAno = valorAno;
+
+      // Step 2 — R$/ano ÷ km/ano = R$/km
+      if(kmAno > 0 && valorAno > 0){
+        custoKm = valorAno / kmAno;
+        auditFormula = `${stepFormula} → ÷ ${fmtNum(kmAno,0)} km/ano = R$ ${fmtBR(custoKm,4)}/km`;
+      } else if(kmAno === 0){
+        auditFormula = stepFormula + ' → Informe km/dia para calcular';
+      } else {
+        auditFormula = stepFormula;
+      }
+      totalFixed += custoKm;
+    }
+
+    totalKm += custoKm;
+    if(el) el.textContent = custoKm > 0 ? 'R$ ' + fmtBR(custoKm, 3) : 'R$ --';
+
+    auditRows.push({
+      desc: e.desc, unit: e.unit, value: e.value, ref,
+      custoKm, auditFormula,
+      type: e.unit === 'km' ? 'variavel' : 'fixo'
+    });
+  });
+
+  const grandTotal = totalKm + deprKm;
+
+  document.getElementById('r_total').textContent = fmtBR(grandTotal, 3);
+  document.getElementById('rb_fixo').textContent = 'R$ ' + fmtBR(totalFixed, 3);
+  document.getElementById('rb_var').textContent  = 'R$ ' + fmtBR(totalVar, 3);
+  document.getElementById('rb_depr').textContent = 'R$ ' + fmtBR(deprKm, 3);
+
+  // ── CORRECT cost/day and cost/month ──
+  // grandTotal = R$/km  →  × km/dia = R$/dia  →  × km/mês = R$/mês
+  const custoDia = kmDia > 0 ? grandTotal * kmDia : 0;
+  const custoMes = kmMes > 0 ? grandTotal * kmMes : 0;
+  document.getElementById('s_custo_dia').textContent = 'R$ ' + fmtBR(custoDia, 2);
+  document.getElementById('s_custo_mes').textContent = 'R$ ' + fmtBR(custoMes, 2);
+
+  const placa  = document.getElementById('placa').value;
+  const modelo = document.getElementById('modelo').value;
+  document.getElementById('r_sub').textContent =
+    (placa && modelo)
+      ? `${modelo} · ${placa} · ${fmtNum(kmAno,0)} km/ano`
+      : 'Informe os dados para calcular';
+
+  // ── Transparency panel ──
+  renderAudit(auditRows, grandTotal, kmDia, kmMes, deprKm, kmAno);
+}
+
+/* ─── AUDIT / TRANSPARENCY PANEL ─── */
+function renderAudit(rows, grandTotal, kmDia, kmMes, deprKm, kmAno){
+  const panel = document.getElementById('audit_panel');
+  if(!panel) return;
+
+  const custoDia = grandTotal * kmDia;
+  const custoMes = grandTotal * kmMes;
+
+  let html = `
+    <div class="audit-intro">
+      Cada linha abaixo mostra <strong>passo a passo</strong> como o custo/km foi calculado.
+      O custo diário e mensal é sempre: <code>custo/km × km rodados no período</code>.
+    </div>
+    <table class="audit-table">
+      <thead><tr>
+        <th>Item</th><th>Tipo</th><th>Fórmula aplicada</th><th>R$/km</th>
+      </tr></thead>
+      <tbody>`;
+
+  rows.forEach(r => {
+    const pct = grandTotal > 0 ? (r.custoKm / grandTotal * 100).toFixed(1) : 0;
+    html += `
+      <tr>
+        <td><strong>${r.desc}</strong></td>
+        <td><span class="audit-tag ${r.type}">${r.type === 'km' ? 'Variável' : 'Fixo'}</span></td>
+        <td class="audit-formula">${r.auditFormula}</td>
+        <td class="audit-val">
+          ${r.custoKm > 0 ? `R$ ${fmtBR(r.custoKm,4)}` : '—'}
+          ${r.custoKm > 0 ? `<span class="audit-pct">${pct}%</span>` : ''}
+        </td>
+      </tr>`;
+  });
+
+  if(deprKm > 0){
+    const pct = grandTotal > 0 ? (deprKm / grandTotal * 100).toFixed(1) : 0;
+    html += `
+      <tr>
+        <td><strong>Depreciação</strong></td>
+        <td><span class="audit-tag fixo">Fixo</span></td>
+        <td class="audit-formula">Depreciação anual ÷ ${fmtBR(kmAno,0)} km/ano = R$ ${fmtBR(deprKm,4)}/km</td>
+        <td class="audit-val">R$ ${fmtBR(deprKm,4)} <span class="audit-pct">${pct}%</span></td>
+      </tr>`;
+  }
+
+  html += `
+      </tbody>
+      <tfoot>
+        <tr class="audit-total-row">
+          <td colspan="3"><strong>TOTAL/km</strong> → Custo/dia = R$ ${fmtBR(grandTotal,4)}/km × ${fmtBR(kmDia,0)} km/dia &nbsp;|&nbsp; Custo/mês = R$ ${fmtBR(grandTotal,4)}/km × ${fmtBR(kmMes,0)} km/mês</td>
+          <td class="audit-val"><strong>R$ ${fmtBR(grandTotal,4)}</strong></td>
+        </tr>
+        <tr class="audit-result-row">
+          <td colspan="2">💡 Custo/dia</td>
+          <td class="audit-formula">R$ ${fmtBR(grandTotal,4)} × ${fmtBR(kmDia,0)} km = <strong>R$ ${fmtBR(grandTotal*kmDia,2)}</strong></td>
+          <td class="audit-val" style="color:var(--orange)"><strong>R$ ${fmtBR(grandTotal*kmDia,2)}</strong></td>
+        </tr>
+        <tr class="audit-result-row">
+          <td colspan="2">💡 Custo/mês</td>
+          <td class="audit-formula">R$ ${fmtBR(grandTotal,4)} × ${fmtBR(kmMes,0)} km = <strong>R$ ${fmtBR(grandTotal*kmMes,2)}</strong></td>
+          <td class="audit-val" style="color:var(--green)"><strong>R$ ${fmtBR(grandTotal*kmMes,2)}</strong></td>
+        </tr>
+      </tfoot>
+    </table>`;
+
+  panel.innerHTML = html;
+}
+
+function toggleAudit(){
+  const body = document.getElementById('audit_body');
+  const lbl  = document.getElementById('audit_toggle_lbl');
+  body.classList.toggle('open');
+  lbl.textContent = body.classList.contains('open') ? '▼ Ocultar' : '▶ Mostrar';
+}
+
+/* ─── HISTORY ─── */
+function salvar(){
+  const placa    = document.getElementById('placa').value.trim();
+  const modelo   = document.getElementById('modelo').value.trim();
+  if(!placa || !modelo){ showToast('⚠️ Informe placa e modelo!'); return; }
+
+  const entry = {
+    id: Date.now(),
+    placa, modelo,
+    marca:      document.getElementById('marca').value.trim(),
+    motorista:  document.getElementById('motorista').value.trim(),
+    ano:        document.getElementById('ano').value,
+    tipo:       document.getElementById('tipo_veiculo').value,
+    combustivel:document.getElementById('combustivel').value,
+    kmDia:      parseFloat(document.getElementById('km_dia').value) || 0,
+    diasAno:    parseFloat(document.getElementById('dias_ano').value) || 240,
+    valorCompra:parseFloat(document.getElementById('valor_compra').value) || 0,
+    taxaDepr:   parseFloat(document.getElementById('taxa_depr').value) || 20,
+    metodoDepr: document.getElementById('metodo_depr').value,
+    custoTotal: document.getElementById('r_total').textContent,
+    expenses:   JSON.parse(JSON.stringify(expenses)),
+    date: new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})
+  };
+
+  history = history.filter(h => h.placa !== placa);
+  history.unshift(entry);
+  if(history.length > 10) history = history.slice(0, 10);
+  localStorage.setItem('frota_v2_hist', JSON.stringify(history));
+  renderHistory();
+  showToast('✅ Salvo: ' + placa);
+}
+
+function renderHistory(){
+  const list = document.getElementById('hist_list');
+  document.getElementById('badge_hist').textContent = history.length;
+  if(!history.length){
+    list.innerHTML = '<div class="empty-hist">Nenhum veículo salvo.<br>Preencha os dados e salve.</div>';
+    return;
+  }
+  const tipoIcon = {moto:'🏍️',carro:'🚗',utilitario:'🚐',caminhao:'🚛'};
+  list.innerHTML = history.map(h => `
+    <div class="hi">
+      <div class="hi-top">
+        <span class="hi-plate">${h.placa}</span>
+        <span class="hi-cost">R$ ${h.custoTotal}/km</span>
+      </div>
+      <div class="hi-model">${tipoIcon[h.tipo]||'🚗'} ${h.marca} ${h.modelo} ${h.ano?'· '+h.ano:''}</div>
+      <div class="hi-info">👤 ${h.motorista||'—'} · ⛽ ${h.combustivel||'—'}</div>
+      <div class="hi-info">📏 ${fmtNum(h.kmDia*h.diasAno,0)} km/ano · ${h.kmDia} km/dia</div>
+      ${h.valorCompra ? `<div class="hi-info">💰 Compra: R$ ${fmtBR(h.valorCompra,2)}</div>` : ''}
+      <div class="hi-date">🕐 ${h.date}</div>
+      <div class="hi-acts">
+        <button class="btn btn-sm btn-load" onclick="carregar(${h.id})">📂 Carregar</button>
+        <button class="btn btn-sm btn-danger" onclick="deletar(${h.id})">🗑</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function carregar(id){
+  const h = history.find(x => x.id === id);
+  if(!h) return;
+  document.getElementById('placa').value       = h.placa;
+  document.getElementById('marca').value       = h.marca;
+  document.getElementById('modelo').value      = h.modelo;
+  document.getElementById('motorista').value   = h.motorista||'';
+  document.getElementById('ano').value         = h.ano||'';
+  document.getElementById('tipo_veiculo').value= h.tipo||'carro';
+  document.getElementById('combustivel').value = h.combustivel||'gasolina';
+  document.getElementById('km_dia').value      = h.kmDia;
+  document.getElementById('dias_ano').value    = h.diasAno;
+  document.getElementById('valor_compra').value= h.valorCompra||'';
+  document.getElementById('taxa_depr').value   = h.taxaDepr||20;
+  document.getElementById('metodo_depr').value = h.metodoDepr||'linear';
+  expenses = JSON.parse(JSON.stringify(h.expenses));
+  renderExpenses();
+  setTimeout(calc, 80);
+  showToast('📂 Carregado: ' + h.placa);
+}
+
+function deletar(id){
+  history = history.filter(x => x.id !== id);
+  localStorage.setItem('frota_v2_hist', JSON.stringify(history));
+  renderHistory();
+  showToast('🗑 Excluído');
+}
+
+/* ─── UTILS ─── */
+function fmtBR(n, dec){
+  return n.toFixed(dec).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+}
+function fmtNum(n, dec){ return n.toFixed(dec).replace(/\B(?=(\d{3})+(?!\d))/g,'.'); }
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+init();
+</script>
+</body>
+</html>
